@@ -1,6 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getDocs, doc, deleteDoc } from "firestorage";
+import {
+  getDocs,
+  doc,
+  deleteDoc,
+  query,
+  where,
+  collection,
+  getDoc,
+} from "firestorage";
 
 function Home() {
   const [insectsList, setInsectsList] = useState([]);
@@ -20,10 +28,16 @@ function Home() {
     setInsectsList(newArray);
   };
 
+  const getTag = (insect) => {
+    if (!insect.tag) return "N/A";
+
+    const result = getDoc(doc("tagsList", insect.tag)).data();
+    return result.name;
+  };
+
   const filterList = insectsList.filter((insect) => {
-    if (search === "") {
-      return true;
-    }
+    if (search === "") return true;
+
     return insect.name.toLowerCase().includes(search.toLowerCase());
   });
 
@@ -44,6 +58,7 @@ function Home() {
               <th>Name</th>
               <th>Uglyness</th>
               <th>Annoyance</th>
+              <th>Tag</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -54,6 +69,7 @@ function Home() {
                   <td>{insect.name}</td>
                   <td>{insect.uglyness}</td>
                   <td>{insect.annoyance}</td>
+                  <td>{getTag(insect)}</td>
                   <td>
                     <button
                       onClick={(e) => {

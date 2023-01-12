@@ -1,6 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getDocs, doc, deleteDoc } from "firestorage";
+import {
+  getDocs,
+  doc,
+  deleteDoc,
+  collection,
+  where,
+  query,
+  updateDoc,
+} from "firestorage";
 
 function Tags() {
   const [tagsList, setTagsList] = useState([]);
@@ -14,6 +22,11 @@ function Tags() {
 
   const deleteTag = (tag) => {
     deleteDoc(doc("tagsList", tag.id));
+    const q = query(collection("insectsList"), where("tag", "==", tag.id));
+    const insects = getDocs(q).data();
+    insects.forEach((insect) => {
+      updateDoc(doc("insectsList", insect.id), { tag: null });
+    });
 
     const newArray = tagsList.filter((t) => t.id !== tag.id);
     setTagsList(newArray);
